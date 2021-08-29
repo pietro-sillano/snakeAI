@@ -24,6 +24,9 @@ class Direction(Enum):
     LEFT =2
     UP = 3
     DOWN =4
+    @classmethod
+    def get_gender(cls):
+        return random.choice([Direction.RIGHT,Direction.UP,Direction.LEFT,Direction.DOWN])
 
 Point = namedtuple('Point','x,y')  # self.head = [self.w,self.h] questo potrebbe essere fonte di errore quindi usamo un altro metodo
 
@@ -51,8 +54,10 @@ class SnakeGameAI:
 
   def reset(self):
     #init game state
-    self.direction = Direction.RIGHT
-    self.head = Point(self.w/2,self.h/2) #mettiamo la testa al centro del display
+    self.direction = Direction.get_gender()
+    #self.head = Point(self.w/2,self.h/2) #mettiamo la testa al centro del display
+    self.head = Point(random.randint(0,(self.w-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE,
+                      random.randint(0,(self.h-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE)
     #per il corpo usiamo una lista: testa, primo quadratino, secondo quadratino
     self.snake = [self.head, 
                   Point(self.head.x-BLOCK_SIZE,self.head.y),
@@ -90,7 +95,7 @@ class SnakeGameAI:
 
     # 3. check if over
     game_over = False
-    reward =0
+    reward = 0
     if self.is_collision() or (self.frame_iteration > 100*len(self.snake)):  #default is 100
       game_over = True
       reward = -10 
@@ -101,7 +106,7 @@ class SnakeGameAI:
     if self.head == self.food:
       self.score+=1
       self._place_food()
-      reward = 10
+      reward = 5
     else:
       self.snake.pop() #rimuove l ultimo quadratino del snake
 

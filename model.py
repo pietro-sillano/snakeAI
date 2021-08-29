@@ -21,8 +21,6 @@ class Linear_QNet(nn.Module):
             os.makedirs(model_folder_path)
         file_name=os.path.join(model_folder_path,file_name)
         torch.save(self.state_dict(),file_name)
-
-
     def load(self, file_name='model.pth'):
         model_folder_path = './model'
         file_name = os.path.join(model_folder_path, file_name)

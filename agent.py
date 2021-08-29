@@ -4,13 +4,16 @@ import numpy as np
 from collections import deque #data structure
 from game import SnakeGameAI, Direction, Point
 from model import Linear_QNet, QTrainer
-from helper import plot
+from helper import plot,write
 
 MAX_MEMORY= 100_000
 BATCH_SIZE = 1000
+
 LR = 0.001
-randomness=False #False if i want to use preload model
-#randomness=True #True if i want to start from scratch
+
+
+#randomness=False #False if i want to use preload model
+randomness=True #True if i want to start from scratch
 
 
 class Agent:
@@ -23,7 +26,6 @@ class Agent:
         #inizializzo il modello 11 input, 3 output
         self.model = Linear_QNet(11,256,3)
         self.trainer = QTrainer(self.model,lr=LR,gamma=self.gamma)
-
 
     def get_state(self,game):
         #11 values 
@@ -96,20 +98,16 @@ class Agent:
         # la randomness con la epsilon
         self.epsilon = 80 - self.n_games # piu games meno random
         final_move = [0,0,0]
-
-        if randomness:
-            if random.randint(0,200) < self.epsilon:
-                move = random.randint(0,2)
-                final_move[move] = 1
-            else:
-                state0=torch.tensor(state,dtype=torch.float)
-
-        state0=torch.tensor(state,dtype=torch.float)
-    
-        prediction = self.model(state0)
-        #abbiamo 3 valori vogliamo il max
-        move = torch.argmax(prediction).item()
-        final_move[move] = 1
+        if random.randint(0,200) < self.epsilon:
+            move = random.randint(0,2)
+            final_move[move] = 1
+        else:
+            state0=torch.tensor(state,dtype=torch.float)
+            prediction = self.model(state0)
+    #abbiamo 3 valori vogliamo il max
+            move = torch.argmax(prediction).item()
+            #print(prediction)
+            final_move[move] = 1
         return final_move
 
 def train():
@@ -145,6 +143,7 @@ def train():
             #train long memory ??? experience replay 
             game.reset()
             agent.n_games +=1
+            print("Epsilon random factor",80 - agent.n_games)
             agent.train_long_memory()
             
             if score > record:
@@ -157,8 +156,10 @@ def train():
             plot_scores.append(score)
             total_score += score
             mean_score = total_score/agent.n_games
-            plot_mean_scores.append(mean_score)
-            plot(plot_scores,plot_mean_scores)
+            #plot_mean_scores.append(mean_score)
+            #plot(plot_scores,plot_mean_scores)
+            
+            write(agent.n_games,score,mean_score)
 
 if __name__ == '__main__':
     train()
