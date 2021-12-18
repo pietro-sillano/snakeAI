@@ -96,7 +96,7 @@ class SnakeGameAI:
     # 3. check if over
     game_over = False
     reward = 0
-    if self.is_collision() or (self.frame_iteration > 100*len(self.snake)):  #default is 100
+    if self.is_collision() or (self.frame_iteration > 20*len(self.snake)):  #default is 100
       game_over = True
       reward = -10 
       return reward, game_over, self.score
